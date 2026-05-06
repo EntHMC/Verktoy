@@ -94,7 +94,7 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
     <p>Delt sanntidsoppdatering for alle prosjekter</p>
     <div class="conn-badge loading" id="conn-badge">⏳ Kobler til...</div>
   </div>
-
+ 
   <div class="tabs">
     <div class="tab active" data-tab="oversikt">Oversikt</div>
     <div class="tab" data-tab="finn">Finn</div>
@@ -102,7 +102,7 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
     <div class="tab" data-tab="prosjekter">Prosjekter</div>
     <div class="tab" data-tab="innstillinger">⚙️</div>
   </div>
-
+ 
   <div id="oversikt" class="section active">
     <div class="stat-grid">
       <div class="stat-box total"><div class="num" id="tot">—</div><div class="lbl">Totalt</div></div>
@@ -112,14 +112,14 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
     <div class="tip">Trykk på et verktøy for å endre status. Alle endringer vises umiddelbart på alle enheter.</div>
     <div id="ov-list"><div class="spinner">⏳ Laster verktøy...</div></div>
   </div>
-
+ 
   <div id="finn" class="section">
     <input class="search" type="text" id="search-input" placeholder="Søk verktøy, merke, prosjekt...">
     <div class="filter-row" id="cat-filters"></div>
     <div class="count" id="search-count"></div>
     <div id="search-list"></div>
   </div>
-
+ 
   <div id="legg-til" class="section">
     <div class="form-card">
       <div class="form-row">
@@ -171,11 +171,11 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
       <button class="btn-add" id="btn-add-tool">✅ Registrer verktøy</button>
     </div>
   </div>
-
+ 
   <div id="prosjekter" class="section">
     <div id="proj-list"></div>
   </div>
-
+ 
   <div id="innstillinger" class="section">
     <div class="settings-card">
       <h3>🏗️ Prosjekter</h3>
@@ -192,9 +192,9 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
     </div>
   </div>
 </div>
-
+ 
 <div class="toast" id="toast"></div>
-
+ 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
@@ -207,9 +207,9 @@ firebase.initializeApp({
   messagingSenderId: "764667132617",
   appId: "1:764667132617:web:fbfdd964148810cab76b18"
 });
-
+ 
 const db = firebase.database();
-
+ 
 const DEFAULT_PROJECTS = ["816 - Nordbergveien 83","Rolf Olsensvei 30-32","Lager - Kontor T8"];
 const DEFAULT_TOOLS = [
   {name:"Kappsag",brand:"Dewalt",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
@@ -238,55 +238,79 @@ const DEFAULT_TOOLS = [
   {name:"Kompressor",brand:"Paslode",qty:1,cat:"Snekker",proj:"Lager - Kontor T8",status:"here",note:"",who:"",time:""},
   {name:"Skinnesag",brand:"Makita",qty:1,cat:"Snekker",proj:"Lager - Kontor T8",status:"here",note:"",who:"",time:""},
 ];
-
+ 
 const SL = {here:"På plass",away:"Utlånt",rep:"Til reparasjon",missing:"Savnes",ret:"Returnert"};
 const SC = {here:"green",away:"amber",rep:"red",missing:"red",ret:""};
 const SB = {here:"here",away:"away",rep:"rep",missing:"missing",ret:"ret"};
-
+ 
 let tools = [];
 let projects = [...DEFAULT_PROJECTS];
 let activeCat = "Alle";
-
+ 
 function nowStr() {
   const d = new Date();
   return d.getDate().toString().padStart(2,"0")+"."+(d.getMonth()+1).toString().padStart(2,"0")+" "+
          d.getHours().toString().padStart(2,"0")+":"+d.getMinutes().toString().padStart(2,"0");
 }
-
+ 
 function showToast(msg) {
   const t = document.getElementById("toast");
   t.textContent = msg; t.classList.add("show");
   setTimeout(() => t.classList.remove("show"), 2000);
 }
-
+ 
 function setBadge(state) {
   const b = document.getElementById("conn-badge");
   if (state==="online"){b.className="conn-badge online";b.textContent="🟢 Tilkoblet — sanntid";}
   else if(state==="offline"){b.className="conn-badge offline";b.textContent="🔴 Frakoblet";}
   else{b.className="conn-badge loading";b.textContent="⏳ Kobler til...";}
 }
-
+ 
 // Firebase listeners
 db.ref("tools").on("value", snap => {
   tools = [];
-  if (snap.exists()) snap.forEach(c => tools.push({key:c.key,...c.val()}));
+  if (snap.exists()) {
+    snap.forEach(child => {
+      try {
+        const val = child.val();
+        if (val && val.name) tools.push({key: child.key, ...val});
+      } catch(e) {}
+    });
+  }
   renderAll();
   setBadge("online");
-}, () => setBadge("offline"));
-
+}, err => { console.error(err); setBadge("offline"); });
+ 
 db.ref("projects").on("value", snap => {
-  if (snap.exists()) projects = Object.values(snap.val());
+  if (snap.exists()) {
+    const val = snap.val();
+    if (Array.isArray(val)) {
+      projects = val.filter(Boolean);
+    } else if (typeof val === "object") {
+      projects = Object.values(val).filter(p => typeof p === "string" && p.length > 0);
+    }
+    if (projects.length === 0) projects = [...DEFAULT_PROJECTS];
+  }
   populateProj(); renderSettings(); renderProjects();
 });
-
-// Seed if empty
+ 
+// Seed only if truly empty
 db.ref("tools").once("value").then(snap => {
-  if (!snap.exists()) { DEFAULT_TOOLS.forEach(t => db.ref("tools").push(t)); showToast("✅ Standarddata lastet inn!"); }
+  if (!snap.exists() || snap.numChildren() === 0) {
+    const batch = {};
+    DEFAULT_TOOLS.forEach(t => { batch[db.ref("tools").push().key] = t; });
+    db.ref("tools").set(batch);
+    showToast("Standarddata lastet inn!");
+  }
 });
 db.ref("projects").once("value").then(snap => {
-  if (!snap.exists()) { const o={}; DEFAULT_PROJECTS.forEach((p,i)=>o["p"+i]=p); db.ref("projects").set(o); }
+  if (!snap.exists() || snap.numChildren() === 0) {
+    const o = {};
+    DEFAULT_PROJECTS.forEach((p,i) => o["p"+i] = p);
+    db.ref("projects").set(o);
+  }
 });
-
+ 
 function toolCard(t) {
   const note = t.note ? `<div style="font-size:12px;color:#888;margin-top:3px">📝 ${t.note}</div>` : "";
   const timeInfo = t.time ? `<div class="tool-time">Oppdatert ${t.time}${t.who?" av "+t.who:""}</div>` : "";
@@ -316,15 +340,15 @@ function toolCard(t) {
     </div>
   </div>`;
 }
-
+ 
 // All click handling via event delegation — ingen onclick-attributter
 document.addEventListener("click", function(e) {
   const el = e.target;
-
+ 
   if (el.classList.contains("tab") && el.dataset.tab) { showTab(el.dataset.tab); return; }
-
+ 
   if (el.classList.contains("filter-btn") && el.dataset.cat) { activeCat = el.dataset.cat; renderSearch(); return; }
-
+ 
   if (el.dataset.action === "save") {
     e.stopPropagation();
     const k = el.dataset.key;
@@ -337,14 +361,14 @@ document.addEventListener("click", function(e) {
     });
     showToast("✅ Lagret!"); return;
   }
-
+ 
   if (el.dataset.action === "delete") {
     e.stopPropagation();
     if (!confirm("Slette dette verktøyet?")) return;
     db.ref("tools/"+el.dataset.key).remove();
     showToast("🗑️ Slettet"); return;
   }
-
+ 
   if (el.dataset.action === "remove-proj") {
     const p = el.dataset.proj;
     if (tools.some(t=>t.proj===p)) { alert("Kan ikke slette prosjekt med verktøy. Flytt eller slett verktøyene først."); return; }
@@ -356,7 +380,7 @@ document.addEventListener("click", function(e) {
       showToast("Prosjekt fjernet");
     }); return;
   }
-
+ 
   if (el.id === "btn-add-proj") {
     const v = document.getElementById("new-proj-input").value.trim();
     if (!v || projects.includes(v)) return;
@@ -368,7 +392,7 @@ document.addEventListener("click", function(e) {
       showToast("✅ Prosjekt lagt til");
     }); return;
   }
-
+ 
   if (el.id === "btn-add-tool") {
     const name = document.getElementById("f-name").value.trim();
     if (!name) { alert("Skriv inn navn på verktøyet"); return; }
@@ -386,12 +410,12 @@ document.addEventListener("click", function(e) {
     document.getElementById("f-qty").value="1";
     showToast("✅ Verktøy registrert!"); showTab("oversikt"); return;
   }
-
+ 
   if (el.id === "btn-reset") {
     if (!confirm("Slette ALLE verktøy? Kan ikke angres.")) return;
     db.ref("tools").remove().then(()=>showToast("🗑️ Alle verktøy slettet")); return;
   }
-
+ 
   // Toggle tool card
   const card = el.closest("[data-action='toggle']");
   if (card && !el.closest(".move-form")) {
@@ -400,11 +424,11 @@ document.addEventListener("click", function(e) {
     document.getElementById("move-"+key).classList.toggle("open");
   }
 });
-
+ 
 document.getElementById("search-input").addEventListener("input", renderSearch);
-
+ 
 function renderAll() { updateSummary(); renderSearch(); renderProjects(); }
-
+ 
 function updateSummary() {
   document.getElementById("tot").textContent = tools.length;
   document.getElementById("tok").textContent = tools.filter(t=>t.status==="here").length;
@@ -414,7 +438,7 @@ function updateSummary() {
   document.getElementById("ov-list").innerHTML = sorted.length
     ? sorted.map(t=>toolCard(t)).join("") : '<div class="empty">Ingen verktøy registrert ennå</div>';
 }
-
+ 
 function renderSearch() {
   const q=(document.getElementById("search-input").value||"").toLowerCase();
   const cats=["Alle",...new Set(tools.map(t=>t.cat))];
@@ -428,7 +452,7 @@ function renderSearch() {
   document.getElementById("search-list").innerHTML=filtered.length
     ?filtered.map(t=>toolCard(t)).join(""):'<div class="empty">Ingen verktøy funnet</div>';
 }
-
+ 
 function renderProjects() {
   document.getElementById("proj-list").innerHTML=projects.map(p=>{
     const pt=tools.filter(t=>t.proj===p);
@@ -446,16 +470,16 @@ function renderProjects() {
     </div>`;
   }).join("");
 }
-
+ 
 function renderSettings() {
   document.getElementById("proj-tags").innerHTML=projects.map(p=>
     `<span class="proj-tag">${p} <button data-action="remove-proj" data-proj="${p}">×</button></span>`).join("");
 }
-
+ 
 function populateProj() {
   document.getElementById("f-proj").innerHTML=projects.map(p=>`<option>${p}</option>`).join("");
 }
-
+ 
 function showTab(t) {
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.querySelectorAll(".tab").forEach(s=>s.classList.remove("active"));
@@ -465,3 +489,4 @@ function showTab(t) {
 </script>
 </body>
 </html>
+ 
