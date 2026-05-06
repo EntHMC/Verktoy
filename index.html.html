@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verktøysporing</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f4f6f9;color:#1a1a1a;font-size:15px}
+.app{max-width:520px;margin:0 auto;padding:12px}
+.header{background:#1F3864;color:#fff;padding:16px;border-radius:12px;margin-bottom:12px}
+.header h1{font-size:20px;font-weight:700}
+.header p{font-size:13px;opacity:0.75;margin-top:3px}
+.saved-badge{display:inline-block;font-size:11px;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:10px;margin-top:6px}
+.tabs{display:flex;gap:4px;margin-bottom:14px}
+.tab{flex:1;padding:9px 4px;border:1.5px solid #c8d6e5;border-radius:8px;background:#fff;font-size:13px;cursor:pointer;text-align:center;color:#555;font-family:Arial,sans-serif}
+.tab.active{background:#D6E4F0;border-color:#2F5496;color:#1F3864;font-weight:700}
+.section{display:none}.section.active{display:block}
+input[type=text],input[type=number],select{width:100%;padding:9px 11px;border:1.5px solid #c8d6e5;border-radius:8px;font-size:14px;font-family:Arial,sans-serif;background:#fff;color:#1a1a1a;margin-top:3px}
+input:focus,select:focus{outline:none;border-color:#2F5496}
+.search{margin-bottom:10px}
+.filter-row{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
+.filter-btn{padding:5px 11px;border:1.5px solid #c8d6e5;border-radius:20px;font-size:12px;cursor:pointer;background:#fff;color:#555;font-family:Arial,sans-serif}
+.filter-btn.on{background:#E2EFDA;border-color:#375623;color:#375623;font-weight:700}
+.tool-card{background:#fff;border:1.5px solid #c8d6e5;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.tool-card:hover{border-color:#2F5496}
+.tool-card.green{border-left:4px solid #70AD47}
+.tool-card.amber{border-left:4px solid #ED7D31}
+.tool-card.red{border-left:4px solid #C00000}
+.tool-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.tool-name{font-weight:700;font-size:15px}
+.tool-sub{font-size:12px;color:#666;margin-top:2px}
+.badge{font-size:11px;padding:3px 9px;border-radius:12px;white-space:nowrap;font-weight:700}
+.badge.here{background:#E2EFDA;color:#375623}
+.badge.away{background:#FFF2CC;color:#7F6000}
+.badge.rep{background:#FCE4D6;color:#843C0C}
+.badge.missing{background:#FCE4D6;color:#C00000}
+.badge.ret{background:#f0f0f0;color:#555}
+.tool-loc{font-size:12px;color:#666;margin-top:5px}
+.tool-loc b{color:#1a1a1a}
+.tool-time{font-size:11px;color:#aaa;margin-top:3px}
+.move-form{margin-top:10px;padding-top:10px;border-top:1px solid #e8edf3;display:none}
+.move-form.open{display:block}
+.move-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.move-grid select{font-size:13px}
+.move-btn{width:100%;padding:8px;background:#1F3864;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif}
+.move-btn:hover{background:#2F5496}
+.del-btn{width:100%;padding:7px;background:#fff;color:#C00000;border:1.5px solid #C00000;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;margin-top:5px}
+.del-btn:hover{background:#FCE4D6}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.stat-box{border-radius:10px;padding:12px;text-align:center}
+.stat-box .num{font-size:26px;font-weight:700}
+.stat-box .lbl{font-size:11px;margin-top:2px}
+.stat-box.total{background:#D6E4F0;color:#1F3864}
+.stat-box.ok{background:#E2EFDA;color:#375623}
+.stat-box.warn{background:#FFF2CC;color:#7F6000}
+.form-card{background:#fff;border:1.5px solid #c8d6e5;border-radius:10px;padding:16px}
+.form-row{margin-bottom:12px}
+.form-row label{font-size:12px;color:#555;font-weight:700;display:block}
+.form-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.form-2 label{font-size:12px;color:#555;font-weight:700;display:block}
+.btn-add{width:100%;padding:11px;background:#1F3864;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;margin-top:4px}
+.btn-add:hover{background:#2F5496}
+.proj-card{background:#fff;border:1.5px solid #c8d6e5;border-radius:10px;padding:14px;margin-bottom:10px}
+.proj-title{font-weight:700;font-size:16px;color:#1F3864;margin-bottom:8px}
+.proj-stats{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.pstat{font-size:12px;padding:4px 10px;border-radius:10px;font-weight:700}
+.pstat.g{background:#E2EFDA;color:#375623}
+.pstat.a{background:#FFF2CC;color:#7F6000}
+.pstat.r{background:#FCE4D6;color:#C00000}
+.count{font-size:12px;color:#888;margin-bottom:6px}
+.empty{text-align:center;padding:28px;color:#999;font-size:14px}
+.tip{font-size:12px;color:#555;background:#EBF3FB;padding:10px 12px;border-radius:8px;margin-bottom:12px;line-height:1.6}
+.settings-card{background:#fff;border:1.5px solid #c8d6e5;border-radius:10px;padding:14px;margin-bottom:10px}
+.settings-card h3{font-size:14px;color:#1F3864;margin-bottom:10px}
+.btn-danger{padding:9px 16px;background:#fff;color:#C00000;border:1.5px solid #C00000;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif}
+.btn-secondary{padding:9px 16px;background:#1F3864;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif}
+.proj-input-row{display:flex;gap:6px;margin-top:6px}
+.proj-input-row input{flex:1;margin-top:0}
+.proj-tag{display:inline-flex;align-items:center;gap:5px;background:#D6E4F0;color:#1F3864;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;margin:3px}
+.proj-tag button{background:none;border:none;color:#C00000;cursor:pointer;font-size:14px;font-weight:700;padding:0;line-height:1}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1F3864;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>🔧 Verktøysporing</h1>
+    <p>Finn og oppdater verktøy på alle prosjekter</p>
+    <div class="saved-badge" id="saved-badge">💾 Lagrer automatisk</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('oversikt')">Oversikt</div>
+    <div class="tab" onclick="showTab('finn')">Finn</div>
+    <div class="tab" onclick="showTab('legg-til')">+ Legg til</div>
+    <div class="tab" onclick="showTab('prosjekter')">Prosjekter</div>
+    <div class="tab" onclick="showTab('innstillinger')">⚙️</div>
+  </div>
+
+  <div id="oversikt" class="section active">
+    <div class="stat-grid">
+      <div class="stat-box total"><div class="num" id="tot">0</div><div class="lbl">Totalt</div></div>
+      <div class="stat-box ok"><div class="num" id="tok">0</div><div class="lbl">På plass</div></div>
+      <div class="stat-box warn"><div class="num" id="twarn">0</div><div class="lbl">Ute / problem</div></div>
+    </div>
+    <div class="tip">Trykk på et verktøy for å endre status, flytte det eller slette det. Alle endringer lagres automatisk.</div>
+    <div id="ov-list"></div>
+  </div>
+
+  <div id="finn" class="section">
+    <input class="search" type="text" id="search-input" placeholder="Søk verktøy, merke, prosjekt..." oninput="renderSearch()">
+    <div class="filter-row" id="cat-filters"></div>
+    <div class="count" id="search-count"></div>
+    <div id="search-list"></div>
+  </div>
+
+  <div id="legg-til" class="section">
+    <div class="form-card">
+      <div class="form-row">
+        <label>Verktøy *</label>
+        <input type="text" id="f-name" placeholder="f.eks. kappsag, blandemaskin...">
+      </div>
+      <div class="form-2">
+        <div>
+          <label>Merke</label>
+          <input type="text" id="f-brand" placeholder="Dewalt, Bosch...">
+        </div>
+        <div>
+          <label>Antall</label>
+          <input type="number" id="f-qty" value="1" min="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Kategori</label>
+        <select id="f-cat">
+          <option>Rigg / HMS</option>
+          <option>Snekker</option>
+          <option>Murer</option>
+          <option>Elektriker</option>
+          <option>Rørlegger</option>
+          <option>Annet</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Prosjekt / lokasjon *</label>
+        <select id="f-proj"></select>
+      </div>
+      <div class="form-row">
+        <label>Status</label>
+        <select id="f-status">
+          <option value="here">På plass</option>
+          <option value="away">Utlånt</option>
+          <option value="rep">Til reparasjon</option>
+          <option value="missing">Savnes</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Oppdatert av</label>
+        <input type="text" id="f-who" placeholder="Ditt navn eller initialer">
+      </div>
+      <div class="form-row">
+        <label>Merknad (valgfri)</label>
+        <input type="text" id="f-note" placeholder="f.eks. mangler batteri, til rep...">
+      </div>
+      <button class="btn-add" onclick="addTool()">✅ Registrer verktøy</button>
+    </div>
+  </div>
+
+  <div id="prosjekter" class="section">
+    <div id="proj-list"></div>
+  </div>
+
+  <div id="innstillinger" class="section">
+    <div class="settings-card">
+      <h3>🏗️ Prosjekter</h3>
+      <div id="proj-tags"></div>
+      <div class="proj-input-row">
+        <input type="text" id="new-proj-input" placeholder="Nytt prosjektnavn...">
+        <button class="btn-secondary" onclick="addProject()">Legg til</button>
+      </div>
+    </div>
+    <div class="settings-card">
+      <h3>💾 Data</h3>
+      <p style="font-size:13px;color:#555;margin-bottom:10px">Alle verktøy er lagret i denne nettleseren. Eksporter for å ta backup eller flytte til annen enhet.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-secondary" onclick="exportData()">📤 Eksporter JSON</button>
+        <label class="btn-secondary" style="cursor:pointer">📥 Importer JSON<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+      </div>
+    </div>
+    <div class="settings-card">
+      <h3>⚠️ Nullstill</h3>
+      <p style="font-size:13px;color:#555;margin-bottom:10px">Sletter alle verktøy og starter på nytt med eksempeldataen. Kan ikke angres.</p>
+      <button class="btn-danger" onclick="resetData()">🗑️ Nullstill alt</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = "verktoy_data_v2";
+const PROJECTS_KEY = "verktoy_projects_v2";
+
+const DEFAULT_PROJECTS = [
+  "816 - Nordbergveien 83",
+  "Rolf Olsensvei 30-32",
+  "Lager - Kontor T8"
+];
+
+const DEFAULT_TOOLS = [
+  {id:1,name:"Kappsag",brand:"Dewalt",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {id:2,name:"Fusesag",brand:"Bosch",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {id:3,name:"Støvsuger",brand:"Bosch",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"away",note:"Marcus 17.04",who:"Marcus",time:"17.04"},
+  {id:4,name:"Kompressor",brand:"",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {id:5,name:"90mm spikerpistol",brand:"Bostitch",qty:2,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {id:6,name:"Overfres",brand:"Makita",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {id:7,name:"Sirkelsag",brand:"Makita",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"Kabel",who:"",time:""},
+  {id:8,name:"Sirkelsag",brand:"Makita",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"away",note:"Oskar — batteri",who:"Oskar",time:""},
+  {id:9,name:"Varmevifte 2kW",brand:"",qty:5,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"away",note:"1 stk ødelagt",who:"",time:""},
+  {id:10,name:"Avfukter",brand:"",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"rep",note:"Må på reparasjon",who:"",time:"27.03"},
+  {id:11,name:"Dykkertpistol",brand:"Makita",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"Batteri",who:"",time:""},
+  {id:12,name:"Blandemaskin",brand:"",qty:2,cat:"Murer",proj:"816 - Nordbergveien 83",status:"away",note:"T8 — 1 stk til rep",who:"",time:""},
+  {id:13,name:"Grønn HMS tavle",brand:"",qty:1,cat:"Rigg / HMS",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {id:14,name:"Kaffemaskin",brand:"",qty:1,cat:"Rigg / HMS",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {id:15,name:"Rødt stillas",brand:"",qty:1,cat:"Rigg / HMS",proj:"816 - Nordbergveien 83",status:"here",note:"Komplett",who:"",time:""},
+  {id:16,name:"Bordsag",brand:"Bosch",qty:1,cat:"Snekker",proj:"Rolf Olsensvei 30-32",status:"here",note:"",who:"",time:""},
+  {id:17,name:"Kappsag",brand:"Bosch",qty:1,cat:"Snekker",proj:"Rolf Olsensvei 30-32",status:"here",note:"",who:"",time:""},
+  {id:18,name:"Støvsuger",brand:"Nederman",qty:1,cat:"Snekker",proj:"Rolf Olsensvei 30-32",status:"here",note:"Oransj",who:"",time:""},
+  {id:19,name:"Rullestillas",brand:"Rød",qty:1,cat:"Rigg / HMS",proj:"Rolf Olsensvei 30-32",status:"here",note:"2 etasjer komplett",who:"",time:""},
+  {id:20,name:"Gips heis",brand:"Rød",qty:1,cat:"Rigg / HMS",proj:"Rolf Olsensvei 30-32",status:"here",note:"",who:"",time:""},
+  {id:21,name:"Pigghammer",brand:"",qty:1,cat:"Murer",proj:"Rolf Olsensvei 30-32",status:"missing",note:"Ikke registrert inn",who:"",time:""},
+  {id:22,name:"HMS tavle",brand:"",qty:1,cat:"Rigg / HMS",proj:"Rolf Olsensvei 30-32",status:"here",note:"",who:"",time:""},
+  {id:23,name:"Varmevifte 9kW",brand:"",qty:1,cat:"Snekker",proj:"Lager - Kontor T8",status:"here",note:"",who:"",time:""},
+  {id:24,name:"Kompressor",brand:"Paslode",qty:1,cat:"Snekker",proj:"Lager - Kontor T8",status:"here",note:"",who:"",time:""},
+  {id:25,name:"Skinnesag",brand:"Makita",qty:1,cat:"Snekker",proj:"Lager - Kontor T8",status:"here",note:"",who:"",time:""},
+];
+
+const SL = {here:"På plass",away:"Utlånt",rep:"Til reparasjon",missing:"Savnes",ret:"Returnert"};
+const SC = {here:"green",away:"amber",rep:"red",missing:"red",ret:""};
+const SB = {here:"here",away:"away",rep:"rep",missing:"missing",ret:"ret"};
+
+let tools, projects, nextId, activeCat = "Alle";
+
+function load() {
+  try {
+    const d = localStorage.getItem(STORAGE_KEY);
+    const p = localStorage.getItem(PROJECTS_KEY);
+    tools    = d ? JSON.parse(d) : JSON.parse(JSON.stringify(DEFAULT_TOOLS));
+    projects = p ? JSON.parse(p) : [...DEFAULT_PROJECTS];
+    nextId   = tools.length ? Math.max(...tools.map(t=>t.id)) + 1 : 30;
+  } catch(e) {
+    tools = JSON.parse(JSON.stringify(DEFAULT_TOOLS));
+    projects = [...DEFAULT_PROJECTS];
+    nextId = 30;
+  }
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tools));
+  localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
+  showToast("✅ Lagret");
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 1800);
+}
+
+function nowStr() {
+  const d = new Date();
+  return d.getDate().toString().padStart(2,"0") + "." +
+         (d.getMonth()+1).toString().padStart(2,"0") + " " +
+         d.getHours().toString().padStart(2,"0") + ":" +
+         d.getMinutes().toString().padStart(2,"0");
+}
+
+function toolCard(t) {
+  const note = t.note ? `<div style="font-size:12px;color:#888;margin-top:3px">📝 ${t.note}</div>` : "";
+  const timeInfo = t.time ? `<div class="tool-time">Oppdatert ${t.time}${t.who?" av "+t.who:""}</div>` : "";
+  return `<div class="tool-card ${SC[t.status]||""}" onclick="toggleMove(${t.id})">
+    <div class="tool-top">
+      <div>
+        <div class="tool-name">${t.name}${t.qty>1?" ("+t.qty+" stk)":""}</div>
+        <div class="tool-sub">${t.brand||"—"} &nbsp;·&nbsp; ${t.cat}</div>
+      </div>
+      <span class="badge ${SB[t.status]||""}">${SL[t.status]||t.status}</span>
+    </div>
+    <div class="tool-loc">📍 <b>${t.proj}</b></div>
+    ${note}${timeInfo}
+    <div id="move-${t.id}" class="move-form">
+      <div class="move-grid">
+        <div>
+          <label style="font-size:11px;color:#888;font-weight:700">Status</label>
+          <select id="ms-${t.id}">
+            ${Object.entries(SL).map(([v,l])=>`<option value="${v}"${t.status===v?" selected":""}>${l}</option>`).join("")}
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;color:#888;font-weight:700">Prosjekt</label>
+          <select id="mp-${t.id}">
+            ${projects.map(p=>`<option${t.proj===p?" selected":""}>${p}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:6px">
+        <label style="font-size:11px;color:#888;font-weight:700">Merknad</label>
+        <input type="text" id="mn-${t.id}" value="${t.note}" placeholder="Legg til merknad...">
+      </div>
+      <div style="margin-bottom:6px">
+        <label style="font-size:11px;color:#888;font-weight:700">Ditt navn</label>
+        <input type="text" id="mw-${t.id}" value="${t.who||""}" placeholder="Initialer eller navn">
+      </div>
+      <button class="move-btn" onclick="saveTool(${t.id},event)">💾 Lagre endring</button>
+      <button class="del-btn" onclick="deleteTool(${t.id},event)">🗑️ Slett verktøy</button>
+    </div>
+  </div>`;
+}
+
+function toggleMove(id) {
+  document.querySelectorAll(".move-form.open").forEach(el => {
+    if (el.id !== "move-"+id) el.classList.remove("open");
+  });
+  document.getElementById("move-"+id).classList.toggle("open");
+}
+
+function saveTool(id, e) {
+  e.stopPropagation();
+  const t = tools.find(x => x.id === id);
+  t.status = document.getElementById("ms-"+id).value;
+  t.proj   = document.getElementById("mp-"+id).value;
+  t.note   = document.getElementById("mn-"+id).value;
+  t.who    = document.getElementById("mw-"+id).value;
+  t.time   = nowStr();
+  save();
+  renderAll();
+}
+
+function deleteTool(id, e) {
+  e.stopPropagation();
+  if (!confirm("Slette dette verktøyet?")) return;
+  tools = tools.filter(t => t.id !== id);
+  save();
+  renderAll();
+}
+
+function renderAll() {
+  updateSummary();
+  renderSearch();
+  renderProjects();
+  renderSettings();
+  populateProj();
+}
+
+function updateSummary() {
+  document.getElementById("tot").textContent   = tools.length;
+  document.getElementById("tok").textContent   = tools.filter(t=>t.status==="here").length;
+  document.getElementById("twarn").textContent = tools.filter(t=>t.status!=="here"&&t.status!=="ret").length;
+  const order = {missing:0,rep:1,away:2,here:3,ret:4};
+  const sorted = [...tools].sort((a,b) => (order[a.status]||9)-(order[b.status]||9));
+  document.getElementById("ov-list").innerHTML = sorted.map(t=>toolCard(t)).join("");
+}
+
+function renderSearch() {
+  const q = (document.getElementById("search-input").value||"").toLowerCase();
+  const cats = ["Alle", ...new Set(tools.map(t=>t.cat))];
+  document.getElementById("cat-filters").innerHTML = cats.map(c =>
+    `<button class="filter-btn${activeCat===c?" on":""}" onclick="setCat('${c}')">${c}</button>`
+  ).join("");
+  const filtered = tools.filter(t =>
+    (activeCat==="Alle" || t.cat===activeCat) &&
+    (!q || t.name.toLowerCase().includes(q) || t.brand.toLowerCase().includes(q) ||
+           t.proj.toLowerCase().includes(q)  || t.note.toLowerCase().includes(q))
+  );
+  document.getElementById("search-count").textContent = filtered.length + " verktøy";
+  document.getElementById("search-list").innerHTML = filtered.length
+    ? filtered.map(t=>toolCard(t)).join("")
+    : '<div class="empty">Ingen verktøy funnet</div>';
+}
+
+function setCat(c) { activeCat = c; renderSearch(); }
+
+function renderProjects() {
+  document.getElementById("proj-list").innerHTML = projects.map(p => {
+    const pt   = tools.filter(t=>t.proj===p);
+    const here = pt.filter(t=>t.status==="here").length;
+    const away = pt.filter(t=>t.status==="away").length;
+    const prob = pt.filter(t=>t.status==="rep"||t.status==="missing").length;
+    return `<div class="proj-card">
+      <div class="proj-title">📁 ${p}</div>
+      <div class="proj-stats">
+        <span class="pstat g">✅ ${here} på plass</span>
+        ${away?`<span class="pstat a">📤 ${away} utlånt</span>`:""}
+        ${prob?`<span class="pstat r">⚠️ ${prob} problem</span>`:""}
+      </div>
+      ${pt.length ? pt.map(t=>toolCard(t)).join("") : '<div class="empty">Ingen verktøy registrert</div>'}
+    </div>`;
+  }).join("");
+}
+
+function renderSettings() {
+  document.getElementById("proj-tags").innerHTML = projects.map(p =>
+    `<span class="proj-tag">${p} <button onclick="removeProject('${p.replace(/'/g,"\\'")}')">×</button></span>`
+  ).join("");
+}
+
+function addProject() {
+  const v = document.getElementById("new-proj-input").value.trim();
+  if (!v || projects.includes(v)) return;
+  projects.push(v);
+  document.getElementById("new-proj-input").value = "";
+  save();
+  renderAll();
+}
+
+function removeProject(p) {
+  if (tools.some(t=>t.proj===p)) {
+    alert("Kan ikke slette prosjekt med verktøy. Flytt eller slett verktøyene først.");
+    return;
+  }
+  projects = projects.filter(x=>x!==p);
+  save();
+  renderAll();
+}
+
+function addTool() {
+  const name = document.getElementById("f-name").value.trim();
+  if (!name) { alert("Skriv inn navn på verktøyet"); return; }
+  tools.push({
+    id: nextId++,
+    name,
+    brand:  document.getElementById("f-brand").value.trim(),
+    qty:    parseInt(document.getElementById("f-qty").value)||1,
+    cat:    document.getElementById("f-cat").value,
+    proj:   document.getElementById("f-proj").value,
+    status: document.getElementById("f-status").value,
+    who:    document.getElementById("f-who").value.trim(),
+    note:   document.getElementById("f-note").value.trim(),
+    time:   nowStr(),
+  });
+  ["f-name","f-brand","f-note","f-who"].forEach(id => document.getElementById(id).value="");
+  document.getElementById("f-qty").value = "1";
+  save();
+  renderAll();
+  showTab("oversikt");
+}
+
+function populateProj() {
+  document.getElementById("f-proj").innerHTML = projects.map(p=>`<option>${p}</option>`).join("");
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify({tools, projects}, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "verktoy_backup_" + new Date().toISOString().slice(0,10) + ".json";
+  a.click();
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      if (d.tools && d.projects) {
+        tools = d.tools;
+        projects = d.projects;
+        nextId = Math.max(...tools.map(t=>t.id)) + 1;
+        save();
+        renderAll();
+        showToast("✅ Import vellykket!");
+      } else { alert("Ugyldig fil"); }
+    } catch { alert("Kunne ikke lese filen"); }
+  };
+  r.readAsText(file);
+}
+
+function resetData() {
+  if (!confirm("Nullstille ALT? Dette kan ikke angres.")) return;
+  tools = JSON.parse(JSON.stringify(DEFAULT_TOOLS));
+  projects = [...DEFAULT_PROJECTS];
+  nextId = 30;
+  save();
+  renderAll();
+  showToast("Nullstilt til standarddata");
+}
+
+function showTab(t) {
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(s=>s.classList.remove("active"));
+  document.getElementById(t).classList.add("active");
+  const idx = {oversikt:0,finn:1,"legg-til":2,prosjekter:3,innstillinger:4};
+  document.querySelectorAll(".tab")[idx[t]].classList.add("active");
+}
+
+load();
+renderAll();
+</script>
+</body>
+</html>
