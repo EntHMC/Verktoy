@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#f4f6f9;color:#1a1a1a;font-size:15px}
-.app{max-width:520px;margin:0 auto;padding:12px}
+.app{max-width:1100px;margin:0 auto;padding:16px}
 .header{background:#1F3864;color:#fff;padding:16px;border-radius:12px;margin-bottom:12px}
 .header h1{font-size:20px;font-weight:700}
 .header p{font-size:13px;opacity:0.75;margin-top:3px}
@@ -26,6 +26,12 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
 .filter-btn{padding:5px 11px;border:1.5px solid #c8d6e5;border-radius:20px;font-size:12px;cursor:pointer;background:#fff;color:#555;font-family:Arial,sans-serif}
 .filter-btn.on{background:#E2EFDA;border-color:#375623;color:#375623;font-weight:700}
 .tool-card{background:#fff;border:1.5px solid #c8d6e5;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.tool-grid{display:block}
+@media(min-width:800px){
+  .tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px}
+  .tool-grid .tool-card{margin-bottom:0}
+}
+ 
 .tool-card:hover{border-color:#2F5496}
 .tool-card.green{border-left:4px solid #70AD47}
 .tool-card.amber{border-left:4px solid #ED7D31}
@@ -436,7 +442,7 @@ function updateSummary() {
   const order={missing:0,rep:1,away:2,here:3,ret:4};
   const sorted=[...tools].sort((a,b)=>(order[a.status]||9)-(order[b.status]||9));
   document.getElementById("ov-list").innerHTML = sorted.length
-    ? sorted.map(t=>toolCard(t)).join("") : '<div class="empty">Ingen verktøy registrert ennå</div>';
+    ? '<div class="tool-grid">' + sorted.map(t=>toolCard(t)).join("") + '</div>' : '<div class="empty">Ingen verktøy registrert ennå</div>';
 }
  
 function renderSearch() {
@@ -466,7 +472,7 @@ function renderProjects() {
         ${away?`<span class="pstat a">📤 ${away} utlånt</span>`:""}
         ${prob?`<span class="pstat r">⚠️ ${prob} problem</span>`:""}
       </div>
-      ${pt.length?pt.map(t=>toolCard(t)).join(""):'<div class="empty">Ingen verktøy</div>'}
+      ${pt.length ? '<div class="tool-grid">' + pt.map(t=>toolCard(t)).join("") + '</div>' : '<div class="empty">Ingen verktøy</div>'}
     </div>`;
   }).join("");
 }
