@@ -11,7 +11,10 @@ body{font-family:Arial,sans-serif;background:#f4f6f9;color:#1a1a1a;font-size:15p
 .header{background:#1F3864;color:#fff;padding:16px;border-radius:12px;margin-bottom:12px}
 .header h1{font-size:20px;font-weight:700}
 .header p{font-size:13px;opacity:0.75;margin-top:3px}
-.saved-badge{display:inline-block;font-size:11px;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:10px;margin-top:6px}
+.conn-badge{display:inline-block;font-size:11px;padding:2px 9px;border-radius:10px;margin-top:6px;font-weight:700}
+.conn-badge.online{background:rgba(112,173,71,0.3);color:#c6efce}
+.conn-badge.offline{background:rgba(200,0,0,0.3);color:#ffc7ce}
+.conn-badge.loading{background:rgba(255,255,255,0.15);color:#fff}
 .tabs{display:flex;gap:4px;margin-bottom:14px}
 .tab{flex:1;padding:9px 4px;border:1.5px solid #c8d6e5;border-radius:8px;background:#fff;font-size:13px;cursor:pointer;text-align:center;color:#555;font-family:Arial,sans-serif}
 .tab.active{background:#D6E4F0;border-color:#2F5496;color:#1F3864;font-weight:700}
@@ -75,42 +78,43 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
 .settings-card h3{font-size:14px;color:#1F3864;margin-bottom:10px}
 .btn-danger{padding:9px 16px;background:#fff;color:#C00000;border:1.5px solid #C00000;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif}
 .btn-secondary{padding:9px 16px;background:#1F3864;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif}
-.proj-input-row{display:flex;gap:6px;margin-top:6px}
+.proj-input-row{display:flex;gap:6px;margin-top:8px}
 .proj-input-row input{flex:1;margin-top:0}
 .proj-tag{display:inline-flex;align-items:center;gap:5px;background:#D6E4F0;color:#1F3864;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;margin:3px}
 .proj-tag button{background:none;border:none;color:#C00000;cursor:pointer;font-size:14px;font-weight:700;padding:0;line-height:1}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1F3864;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1F3864;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
+.spinner{text-align:center;padding:40px;color:#888;font-size:14px}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
     <h1>🔧 Verktøysporing</h1>
-    <p>Finn og oppdater verktøy på alle prosjekter</p>
-    <div class="saved-badge" id="saved-badge">💾 Lagrer automatisk</div>
+    <p>Delt sanntidsoppdatering for alle prosjekter</p>
+    <div class="conn-badge loading" id="conn-badge">⏳ Kobler til...</div>
   </div>
 
   <div class="tabs">
-    <div class="tab active" onclick="showTab('oversikt')">Oversikt</div>
-    <div class="tab" onclick="showTab('finn')">Finn</div>
-    <div class="tab" onclick="showTab('legg-til')">+ Legg til</div>
-    <div class="tab" onclick="showTab('prosjekter')">Prosjekter</div>
-    <div class="tab" onclick="showTab('innstillinger')">⚙️</div>
+    <div class="tab active" data-tab="oversikt">Oversikt</div>
+    <div class="tab" data-tab="finn">Finn</div>
+    <div class="tab" data-tab="legg-til">+ Legg til</div>
+    <div class="tab" data-tab="prosjekter">Prosjekter</div>
+    <div class="tab" data-tab="innstillinger">⚙️</div>
   </div>
 
   <div id="oversikt" class="section active">
     <div class="stat-grid">
-      <div class="stat-box total"><div class="num" id="tot">0</div><div class="lbl">Totalt</div></div>
-      <div class="stat-box ok"><div class="num" id="tok">0</div><div class="lbl">På plass</div></div>
-      <div class="stat-box warn"><div class="num" id="twarn">0</div><div class="lbl">Ute / problem</div></div>
+      <div class="stat-box total"><div class="num" id="tot">—</div><div class="lbl">Totalt</div></div>
+      <div class="stat-box ok"><div class="num" id="tok">—</div><div class="lbl">På plass</div></div>
+      <div class="stat-box warn"><div class="num" id="twarn">—</div><div class="lbl">Ute / problem</div></div>
     </div>
-    <div class="tip">Trykk på et verktøy for å endre status, flytte det eller slette det. Alle endringer lagres automatisk.</div>
-    <div id="ov-list"></div>
+    <div class="tip">Trykk på et verktøy for å endre status. Alle endringer vises umiddelbart på alle enheter.</div>
+    <div id="ov-list"><div class="spinner">⏳ Laster verktøy...</div></div>
   </div>
 
   <div id="finn" class="section">
-    <input class="search" type="text" id="search-input" placeholder="Søk verktøy, merke, prosjekt..." oninput="renderSearch()">
+    <input class="search" type="text" id="search-input" placeholder="Søk verktøy, merke, prosjekt...">
     <div class="filter-row" id="cat-filters"></div>
     <div class="count" id="search-count"></div>
     <div id="search-list"></div>
@@ -157,14 +161,14 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
         </select>
       </div>
       <div class="form-row">
-        <label>Oppdatert av</label>
-        <input type="text" id="f-who" placeholder="Ditt navn eller initialer">
+        <label>Ditt navn</label>
+        <input type="text" id="f-who" placeholder="Initialer eller navn">
       </div>
       <div class="form-row">
         <label>Merknad (valgfri)</label>
         <input type="text" id="f-note" placeholder="f.eks. mangler batteri, til rep...">
       </div>
-      <button class="btn-add" onclick="addTool()">✅ Registrer verktøy</button>
+      <button class="btn-add" id="btn-add-tool">✅ Registrer verktøy</button>
     </div>
   </div>
 
@@ -178,217 +182,259 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
       <div id="proj-tags"></div>
       <div class="proj-input-row">
         <input type="text" id="new-proj-input" placeholder="Nytt prosjektnavn...">
-        <button class="btn-secondary" onclick="addProject()">Legg til</button>
+        <button class="btn-secondary" id="btn-add-proj">Legg til</button>
       </div>
     </div>
     <div class="settings-card">
-      <h3>💾 Data</h3>
-      <p style="font-size:13px;color:#555;margin-bottom:10px">Alle verktøy er lagret i denne nettleseren. Eksporter for å ta backup eller flytte til annen enhet.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn-secondary" onclick="exportData()">📤 Eksporter JSON</button>
-        <label class="btn-secondary" style="cursor:pointer">📥 Importer JSON<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
-      </div>
-    </div>
-    <div class="settings-card">
-      <h3>⚠️ Nullstill</h3>
-      <p style="font-size:13px;color:#555;margin-bottom:10px">Sletter alle verktøy og starter på nytt med eksempeldataen. Kan ikke angres.</p>
-      <button class="btn-danger" onclick="resetData()">🗑️ Nullstill alt</button>
+      <h3>⚠️ Nullstill alle verktøy</h3>
+      <p style="font-size:13px;color:#555;margin-bottom:10px">Sletter alle verktøy fra databasen. Kan ikke angres.</p>
+      <button class="btn-danger" id="btn-reset">🗑️ Slett alle verktøy</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
-const STORAGE_KEY = "verktoy_data_v2";
-const PROJECTS_KEY = "verktoy_projects_v2";
+firebase.initializeApp({
+  apiKey: "AIzaSyAFVV7Smicr6XH6GFHsuS46NULvISJOHL8",
+  authDomain: "verktoy-byggeplass.firebaseapp.com",
+  databaseURL: "https://verktoy-byggeplass-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "verktoy-byggeplass",
+  storageBucket: "verktoy-byggeplass.firebasestorage.app",
+  messagingSenderId: "764667132617",
+  appId: "1:764667132617:web:fbfdd964148810cab76b18"
+});
 
-const DEFAULT_PROJECTS = [
-  "816 - Nordbergveien 83",
-  "Rolf Olsensvei 30-32",
-  "Lager - Kontor T8"
-];
+const db = firebase.database();
 
+const DEFAULT_PROJECTS = ["816 - Nordbergveien 83","Rolf Olsensvei 30-32","Lager - Kontor T8"];
 const DEFAULT_TOOLS = [
-  {id:1,name:"Kappsag",brand:"Dewalt",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
-  {id:2,name:"Fusesag",brand:"Bosch",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
-  {id:3,name:"Støvsuger",brand:"Bosch",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"away",note:"Marcus 17.04",who:"Marcus",time:"17.04"},
-  {id:4,name:"Kompressor",brand:"",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
-  {id:5,name:"90mm spikerpistol",brand:"Bostitch",qty:2,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
-  {id:6,name:"Overfres",brand:"Makita",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
-  {id:7,name:"Sirkelsag",brand:"Makita",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"Kabel",who:"",time:""},
-  {id:8,name:"Sirkelsag",brand:"Makita",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"away",note:"Oskar — batteri",who:"Oskar",time:""},
-  {id:9,name:"Varmevifte 2kW",brand:"",qty:5,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"away",note:"1 stk ødelagt",who:"",time:""},
-  {id:10,name:"Avfukter",brand:"",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"rep",note:"Må på reparasjon",who:"",time:"27.03"},
-  {id:11,name:"Dykkertpistol",brand:"Makita",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"Batteri",who:"",time:""},
-  {id:12,name:"Blandemaskin",brand:"",qty:2,cat:"Murer",proj:"816 - Nordbergveien 83",status:"away",note:"T8 — 1 stk til rep",who:"",time:""},
-  {id:13,name:"Grønn HMS tavle",brand:"",qty:1,cat:"Rigg / HMS",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
-  {id:14,name:"Kaffemaskin",brand:"",qty:1,cat:"Rigg / HMS",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
-  {id:15,name:"Rødt stillas",brand:"",qty:1,cat:"Rigg / HMS",proj:"816 - Nordbergveien 83",status:"here",note:"Komplett",who:"",time:""},
-  {id:16,name:"Bordsag",brand:"Bosch",qty:1,cat:"Snekker",proj:"Rolf Olsensvei 30-32",status:"here",note:"",who:"",time:""},
-  {id:17,name:"Kappsag",brand:"Bosch",qty:1,cat:"Snekker",proj:"Rolf Olsensvei 30-32",status:"here",note:"",who:"",time:""},
-  {id:18,name:"Støvsuger",brand:"Nederman",qty:1,cat:"Snekker",proj:"Rolf Olsensvei 30-32",status:"here",note:"Oransj",who:"",time:""},
-  {id:19,name:"Rullestillas",brand:"Rød",qty:1,cat:"Rigg / HMS",proj:"Rolf Olsensvei 30-32",status:"here",note:"2 etasjer komplett",who:"",time:""},
-  {id:20,name:"Gips heis",brand:"Rød",qty:1,cat:"Rigg / HMS",proj:"Rolf Olsensvei 30-32",status:"here",note:"",who:"",time:""},
-  {id:21,name:"Pigghammer",brand:"",qty:1,cat:"Murer",proj:"Rolf Olsensvei 30-32",status:"missing",note:"Ikke registrert inn",who:"",time:""},
-  {id:22,name:"HMS tavle",brand:"",qty:1,cat:"Rigg / HMS",proj:"Rolf Olsensvei 30-32",status:"here",note:"",who:"",time:""},
-  {id:23,name:"Varmevifte 9kW",brand:"",qty:1,cat:"Snekker",proj:"Lager - Kontor T8",status:"here",note:"",who:"",time:""},
-  {id:24,name:"Kompressor",brand:"Paslode",qty:1,cat:"Snekker",proj:"Lager - Kontor T8",status:"here",note:"",who:"",time:""},
-  {id:25,name:"Skinnesag",brand:"Makita",qty:1,cat:"Snekker",proj:"Lager - Kontor T8",status:"here",note:"",who:"",time:""},
+  {name:"Kappsag",brand:"Dewalt",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {name:"Fusesag",brand:"Bosch",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {name:"Støvsuger",brand:"Bosch",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"away",note:"Marcus 17.04",who:"Marcus",time:"17.04"},
+  {name:"Kompressor",brand:"",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {name:"90mm spikerpistol",brand:"Bostitch",qty:2,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {name:"Overfres",brand:"Makita",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {name:"Sirkelsag kabel",brand:"Makita",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {name:"Sirkelsag batteri",brand:"Makita",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"away",note:"Oskar",who:"Oskar",time:""},
+  {name:"Varmevifte 2kW",brand:"",qty:5,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"away",note:"1 stk ødelagt",who:"",time:""},
+  {name:"Avfukter",brand:"",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"rep",note:"Må på reparasjon",who:"",time:"27.03"},
+  {name:"Dykkertpistol",brand:"Makita",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"Batteri",who:"",time:""},
+  {name:"Blandemaskin",brand:"",qty:2,cat:"Murer",proj:"816 - Nordbergveien 83",status:"away",note:"T8 - 1 stk til rep",who:"",time:""},
+  {name:"Grønn HMS tavle",brand:"",qty:1,cat:"Rigg / HMS",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {name:"Kaffemaskin",brand:"",qty:1,cat:"Rigg / HMS",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
+  {name:"Rødt stillas",brand:"",qty:1,cat:"Rigg / HMS",proj:"816 - Nordbergveien 83",status:"here",note:"Komplett",who:"",time:""},
+  {name:"Bordsag",brand:"Bosch",qty:1,cat:"Snekker",proj:"Rolf Olsensvei 30-32",status:"here",note:"",who:"",time:""},
+  {name:"Kappsag",brand:"Bosch",qty:1,cat:"Snekker",proj:"Rolf Olsensvei 30-32",status:"here",note:"",who:"",time:""},
+  {name:"Støvsuger",brand:"Nederman",qty:1,cat:"Snekker",proj:"Rolf Olsensvei 30-32",status:"here",note:"Oransj",who:"",time:""},
+  {name:"Rullestillas",brand:"Rød",qty:1,cat:"Rigg / HMS",proj:"Rolf Olsensvei 30-32",status:"here",note:"2 etasjer komplett",who:"",time:""},
+  {name:"Gips heis",brand:"Rød",qty:1,cat:"Rigg / HMS",proj:"Rolf Olsensvei 30-32",status:"here",note:"",who:"",time:""},
+  {name:"Pigghammer",brand:"",qty:1,cat:"Murer",proj:"Rolf Olsensvei 30-32",status:"missing",note:"Ikke registrert inn",who:"",time:""},
+  {name:"HMS tavle",brand:"",qty:1,cat:"Rigg / HMS",proj:"Rolf Olsensvei 30-32",status:"here",note:"",who:"",time:""},
+  {name:"Varmevifte 9kW",brand:"",qty:1,cat:"Snekker",proj:"Lager - Kontor T8",status:"here",note:"",who:"",time:""},
+  {name:"Kompressor",brand:"Paslode",qty:1,cat:"Snekker",proj:"Lager - Kontor T8",status:"here",note:"",who:"",time:""},
+  {name:"Skinnesag",brand:"Makita",qty:1,cat:"Snekker",proj:"Lager - Kontor T8",status:"here",note:"",who:"",time:""},
 ];
 
 const SL = {here:"På plass",away:"Utlånt",rep:"Til reparasjon",missing:"Savnes",ret:"Returnert"};
 const SC = {here:"green",away:"amber",rep:"red",missing:"red",ret:""};
 const SB = {here:"here",away:"away",rep:"rep",missing:"missing",ret:"ret"};
 
-let tools, projects, nextId, activeCat = "Alle";
+let tools = [];
+let projects = [...DEFAULT_PROJECTS];
+let activeCat = "Alle";
 
-function load() {
-  try {
-    const d = localStorage.getItem(STORAGE_KEY);
-    const p = localStorage.getItem(PROJECTS_KEY);
-    tools    = d ? JSON.parse(d) : JSON.parse(JSON.stringify(DEFAULT_TOOLS));
-    projects = p ? JSON.parse(p) : [...DEFAULT_PROJECTS];
-    nextId   = tools.length ? Math.max(...tools.map(t=>t.id)) + 1 : 30;
-  } catch(e) {
-    tools = JSON.parse(JSON.stringify(DEFAULT_TOOLS));
-    projects = [...DEFAULT_PROJECTS];
-    nextId = 30;
-  }
-}
-
-function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tools));
-  localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
-  showToast("✅ Lagret");
+function nowStr() {
+  const d = new Date();
+  return d.getDate().toString().padStart(2,"0")+"."+(d.getMonth()+1).toString().padStart(2,"0")+" "+
+         d.getHours().toString().padStart(2,"0")+":"+d.getMinutes().toString().padStart(2,"0");
 }
 
 function showToast(msg) {
   const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 1800);
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2000);
 }
 
-function nowStr() {
-  const d = new Date();
-  return d.getDate().toString().padStart(2,"0") + "." +
-         (d.getMonth()+1).toString().padStart(2,"0") + " " +
-         d.getHours().toString().padStart(2,"0") + ":" +
-         d.getMinutes().toString().padStart(2,"0");
+function setBadge(state) {
+  const b = document.getElementById("conn-badge");
+  if (state==="online"){b.className="conn-badge online";b.textContent="🟢 Tilkoblet — sanntid";}
+  else if(state==="offline"){b.className="conn-badge offline";b.textContent="🔴 Frakoblet";}
+  else{b.className="conn-badge loading";b.textContent="⏳ Kobler til...";}
 }
+
+// Firebase listeners
+db.ref("tools").on("value", snap => {
+  tools = [];
+  if (snap.exists()) snap.forEach(c => tools.push({key:c.key,...c.val()}));
+  renderAll();
+  setBadge("online");
+}, () => setBadge("offline"));
+
+db.ref("projects").on("value", snap => {
+  if (snap.exists()) projects = Object.values(snap.val());
+  populateProj(); renderSettings(); renderProjects();
+});
+
+// Seed if empty
+db.ref("tools").once("value").then(snap => {
+  if (!snap.exists()) { DEFAULT_TOOLS.forEach(t => db.ref("tools").push(t)); showToast("✅ Standarddata lastet inn!"); }
+});
+db.ref("projects").once("value").then(snap => {
+  if (!snap.exists()) { const o={}; DEFAULT_PROJECTS.forEach((p,i)=>o["p"+i]=p); db.ref("projects").set(o); }
+});
 
 function toolCard(t) {
   const note = t.note ? `<div style="font-size:12px;color:#888;margin-top:3px">📝 ${t.note}</div>` : "";
   const timeInfo = t.time ? `<div class="tool-time">Oppdatert ${t.time}${t.who?" av "+t.who:""}</div>` : "";
-  return `<div class="tool-card ${SC[t.status]||""}" onclick="toggleMove(${t.id})">
-    <div class="tool-top">
+  const projOpts = projects.map(p=>`<option${t.proj===p?" selected":""}>${p}</option>`).join("");
+  const statOpts = Object.entries(SL).map(([v,l])=>`<option value="${v}"${t.status===v?" selected":""}>${l}</option>`).join("");
+  return `<div class="tool-card ${SC[t.status]||""}" data-key="${t.key}" data-action="toggle">
+    <div class="tool-top" style="pointer-events:none">
       <div>
         <div class="tool-name">${t.name}${t.qty>1?" ("+t.qty+" stk)":""}</div>
-        <div class="tool-sub">${t.brand||"—"} &nbsp;·&nbsp; ${t.cat}</div>
+        <div class="tool-sub">${t.brand||"—"} · ${t.cat}</div>
       </div>
       <span class="badge ${SB[t.status]||""}">${SL[t.status]||t.status}</span>
     </div>
-    <div class="tool-loc">📍 <b>${t.proj}</b></div>
+    <div class="tool-loc" style="pointer-events:none">📍 <b>${t.proj}</b></div>
     ${note}${timeInfo}
-    <div id="move-${t.id}" class="move-form">
+    <div id="move-${t.key}" class="move-form" style="pointer-events:auto">
       <div class="move-grid">
-        <div>
-          <label style="font-size:11px;color:#888;font-weight:700">Status</label>
-          <select id="ms-${t.id}">
-            ${Object.entries(SL).map(([v,l])=>`<option value="${v}"${t.status===v?" selected":""}>${l}</option>`).join("")}
-          </select>
-        </div>
-        <div>
-          <label style="font-size:11px;color:#888;font-weight:700">Prosjekt</label>
-          <select id="mp-${t.id}">
-            ${projects.map(p=>`<option${t.proj===p?" selected":""}>${p}</option>`).join("")}
-          </select>
-        </div>
+        <div><label style="font-size:11px;color:#888;font-weight:700">Status</label><select id="ms-${t.key}">${statOpts}</select></div>
+        <div><label style="font-size:11px;color:#888;font-weight:700">Prosjekt</label><select id="mp-${t.key}">${projOpts}</select></div>
       </div>
-      <div style="margin-bottom:6px">
-        <label style="font-size:11px;color:#888;font-weight:700">Merknad</label>
-        <input type="text" id="mn-${t.id}" value="${t.note}" placeholder="Legg til merknad...">
-      </div>
-      <div style="margin-bottom:6px">
-        <label style="font-size:11px;color:#888;font-weight:700">Ditt navn</label>
-        <input type="text" id="mw-${t.id}" value="${t.who||""}" placeholder="Initialer eller navn">
-      </div>
-      <button class="move-btn" onclick="saveTool(${t.id},event)">💾 Lagre endring</button>
-      <button class="del-btn" onclick="deleteTool(${t.id},event)">🗑️ Slett verktøy</button>
+      <div style="margin-bottom:6px"><label style="font-size:11px;color:#888;font-weight:700">Merknad</label>
+        <input type="text" id="mn-${t.key}" value="${t.note||""}" placeholder="Legg til merknad..."></div>
+      <div style="margin-bottom:6px"><label style="font-size:11px;color:#888;font-weight:700">Ditt navn</label>
+        <input type="text" id="mw-${t.key}" value="${t.who||""}" placeholder="Initialer eller navn"></div>
+      <button class="move-btn" data-key="${t.key}" data-action="save">💾 Lagre endring</button>
+      <button class="del-btn" data-key="${t.key}" data-action="delete">🗑️ Slett verktøy</button>
     </div>
   </div>`;
 }
 
-function toggleMove(id) {
-  document.querySelectorAll(".move-form.open").forEach(el => {
-    if (el.id !== "move-"+id) el.classList.remove("open");
-  });
-  document.getElementById("move-"+id).classList.toggle("open");
-}
+// All click handling via event delegation — ingen onclick-attributter
+document.addEventListener("click", function(e) {
+  const el = e.target;
 
-function saveTool(id, e) {
-  e.stopPropagation();
-  const t = tools.find(x => x.id === id);
-  t.status = document.getElementById("ms-"+id).value;
-  t.proj   = document.getElementById("mp-"+id).value;
-  t.note   = document.getElementById("mn-"+id).value;
-  t.who    = document.getElementById("mw-"+id).value;
-  t.time   = nowStr();
-  save();
-  renderAll();
-}
+  if (el.classList.contains("tab") && el.dataset.tab) { showTab(el.dataset.tab); return; }
 
-function deleteTool(id, e) {
-  e.stopPropagation();
-  if (!confirm("Slette dette verktøyet?")) return;
-  tools = tools.filter(t => t.id !== id);
-  save();
-  renderAll();
-}
+  if (el.classList.contains("filter-btn") && el.dataset.cat) { activeCat = el.dataset.cat; renderSearch(); return; }
 
-function renderAll() {
-  updateSummary();
-  renderSearch();
-  renderProjects();
-  renderSettings();
-  populateProj();
-}
+  if (el.dataset.action === "save") {
+    e.stopPropagation();
+    const k = el.dataset.key;
+    db.ref("tools/"+k).update({
+      status: document.getElementById("ms-"+k).value,
+      proj:   document.getElementById("mp-"+k).value,
+      note:   document.getElementById("mn-"+k).value,
+      who:    document.getElementById("mw-"+k).value,
+      time:   nowStr()
+    });
+    showToast("✅ Lagret!"); return;
+  }
+
+  if (el.dataset.action === "delete") {
+    e.stopPropagation();
+    if (!confirm("Slette dette verktøyet?")) return;
+    db.ref("tools/"+el.dataset.key).remove();
+    showToast("🗑️ Slettet"); return;
+  }
+
+  if (el.dataset.action === "remove-proj") {
+    const p = el.dataset.proj;
+    if (tools.some(t=>t.proj===p)) { alert("Kan ikke slette prosjekt med verktøy. Flytt eller slett verktøyene først."); return; }
+    db.ref("projects").once("value").then(snap => {
+      if (!snap.exists()) return;
+      const obj = snap.val();
+      const k = Object.keys(obj).find(k=>obj[k]===p);
+      if (k) db.ref("projects/"+k).remove();
+      showToast("Prosjekt fjernet");
+    }); return;
+  }
+
+  if (el.id === "btn-add-proj") {
+    const v = document.getElementById("new-proj-input").value.trim();
+    if (!v || projects.includes(v)) return;
+    db.ref("projects").once("value").then(snap => {
+      const existing = snap.exists() ? snap.val() : {};
+      existing["p"+Date.now()] = v;
+      db.ref("projects").set(existing);
+      document.getElementById("new-proj-input").value = "";
+      showToast("✅ Prosjekt lagt til");
+    }); return;
+  }
+
+  if (el.id === "btn-add-tool") {
+    const name = document.getElementById("f-name").value.trim();
+    if (!name) { alert("Skriv inn navn på verktøyet"); return; }
+    db.ref("tools").push({
+      name, brand: document.getElementById("f-brand").value.trim(),
+      qty: parseInt(document.getElementById("f-qty").value)||1,
+      cat: document.getElementById("f-cat").value,
+      proj: document.getElementById("f-proj").value,
+      status: document.getElementById("f-status").value,
+      who: document.getElementById("f-who").value.trim(),
+      note: document.getElementById("f-note").value.trim(),
+      time: nowStr()
+    });
+    ["f-name","f-brand","f-note","f-who"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("f-qty").value="1";
+    showToast("✅ Verktøy registrert!"); showTab("oversikt"); return;
+  }
+
+  if (el.id === "btn-reset") {
+    if (!confirm("Slette ALLE verktøy? Kan ikke angres.")) return;
+    db.ref("tools").remove().then(()=>showToast("🗑️ Alle verktøy slettet")); return;
+  }
+
+  // Toggle tool card
+  const card = el.closest("[data-action='toggle']");
+  if (card && !el.closest(".move-form")) {
+    const key = card.dataset.key;
+    document.querySelectorAll(".move-form.open").forEach(f=>{ if(f.id!=="move-"+key) f.classList.remove("open"); });
+    document.getElementById("move-"+key).classList.toggle("open");
+  }
+});
+
+document.getElementById("search-input").addEventListener("input", renderSearch);
+
+function renderAll() { updateSummary(); renderSearch(); renderProjects(); }
 
 function updateSummary() {
-  document.getElementById("tot").textContent   = tools.length;
-  document.getElementById("tok").textContent   = tools.filter(t=>t.status==="here").length;
+  document.getElementById("tot").textContent = tools.length;
+  document.getElementById("tok").textContent = tools.filter(t=>t.status==="here").length;
   document.getElementById("twarn").textContent = tools.filter(t=>t.status!=="here"&&t.status!=="ret").length;
-  const order = {missing:0,rep:1,away:2,here:3,ret:4};
-  const sorted = [...tools].sort((a,b) => (order[a.status]||9)-(order[b.status]||9));
-  document.getElementById("ov-list").innerHTML = sorted.map(t=>toolCard(t)).join("");
+  const order={missing:0,rep:1,away:2,here:3,ret:4};
+  const sorted=[...tools].sort((a,b)=>(order[a.status]||9)-(order[b.status]||9));
+  document.getElementById("ov-list").innerHTML = sorted.length
+    ? sorted.map(t=>toolCard(t)).join("") : '<div class="empty">Ingen verktøy registrert ennå</div>';
 }
 
 function renderSearch() {
-  const q = (document.getElementById("search-input").value||"").toLowerCase();
-  const cats = ["Alle", ...new Set(tools.map(t=>t.cat))];
-  document.getElementById("cat-filters").innerHTML = cats.map(c =>
-    `<button class="filter-btn${activeCat===c?" on":""}" onclick="setCat('${c}')">${c}</button>`
-  ).join("");
-  const filtered = tools.filter(t =>
-    (activeCat==="Alle" || t.cat===activeCat) &&
-    (!q || t.name.toLowerCase().includes(q) || t.brand.toLowerCase().includes(q) ||
-           t.proj.toLowerCase().includes(q)  || t.note.toLowerCase().includes(q))
-  );
-  document.getElementById("search-count").textContent = filtered.length + " verktøy";
-  document.getElementById("search-list").innerHTML = filtered.length
-    ? filtered.map(t=>toolCard(t)).join("")
-    : '<div class="empty">Ingen verktøy funnet</div>';
+  const q=(document.getElementById("search-input").value||"").toLowerCase();
+  const cats=["Alle",...new Set(tools.map(t=>t.cat))];
+  document.getElementById("cat-filters").innerHTML=cats.map(c=>
+    `<button class="filter-btn${activeCat===c?" on":""}" data-cat="${c}">${c}</button>`).join("");
+  const filtered=tools.filter(t=>
+    (activeCat==="Alle"||t.cat===activeCat)&&
+    (!q||t.name.toLowerCase().includes(q)||(t.brand||"").toLowerCase().includes(q)||
+         t.proj.toLowerCase().includes(q)||(t.note||"").toLowerCase().includes(q)));
+  document.getElementById("search-count").textContent=filtered.length+" verktøy";
+  document.getElementById("search-list").innerHTML=filtered.length
+    ?filtered.map(t=>toolCard(t)).join(""):'<div class="empty">Ingen verktøy funnet</div>';
 }
 
-function setCat(c) { activeCat = c; renderSearch(); }
-
 function renderProjects() {
-  document.getElementById("proj-list").innerHTML = projects.map(p => {
-    const pt   = tools.filter(t=>t.proj===p);
-    const here = pt.filter(t=>t.status==="here").length;
-    const away = pt.filter(t=>t.status==="away").length;
-    const prob = pt.filter(t=>t.status==="rep"||t.status==="missing").length;
+  document.getElementById("proj-list").innerHTML=projects.map(p=>{
+    const pt=tools.filter(t=>t.proj===p);
+    const here=pt.filter(t=>t.status==="here").length;
+    const away=pt.filter(t=>t.status==="away").length;
+    const prob=pt.filter(t=>t.status==="rep"||t.status==="missing").length;
     return `<div class="proj-card">
       <div class="proj-title">📁 ${p}</div>
       <div class="proj-stats">
@@ -396,110 +442,26 @@ function renderProjects() {
         ${away?`<span class="pstat a">📤 ${away} utlånt</span>`:""}
         ${prob?`<span class="pstat r">⚠️ ${prob} problem</span>`:""}
       </div>
-      ${pt.length ? pt.map(t=>toolCard(t)).join("") : '<div class="empty">Ingen verktøy registrert</div>'}
+      ${pt.length?pt.map(t=>toolCard(t)).join(""):'<div class="empty">Ingen verktøy</div>'}
     </div>`;
   }).join("");
 }
 
 function renderSettings() {
-  document.getElementById("proj-tags").innerHTML = projects.map(p =>
-    `<span class="proj-tag">${p} <button onclick="removeProject('${p.replace(/'/g,"\\'")}')">×</button></span>`
-  ).join("");
-}
-
-function addProject() {
-  const v = document.getElementById("new-proj-input").value.trim();
-  if (!v || projects.includes(v)) return;
-  projects.push(v);
-  document.getElementById("new-proj-input").value = "";
-  save();
-  renderAll();
-}
-
-function removeProject(p) {
-  if (tools.some(t=>t.proj===p)) {
-    alert("Kan ikke slette prosjekt med verktøy. Flytt eller slett verktøyene først.");
-    return;
-  }
-  projects = projects.filter(x=>x!==p);
-  save();
-  renderAll();
-}
-
-function addTool() {
-  const name = document.getElementById("f-name").value.trim();
-  if (!name) { alert("Skriv inn navn på verktøyet"); return; }
-  tools.push({
-    id: nextId++,
-    name,
-    brand:  document.getElementById("f-brand").value.trim(),
-    qty:    parseInt(document.getElementById("f-qty").value)||1,
-    cat:    document.getElementById("f-cat").value,
-    proj:   document.getElementById("f-proj").value,
-    status: document.getElementById("f-status").value,
-    who:    document.getElementById("f-who").value.trim(),
-    note:   document.getElementById("f-note").value.trim(),
-    time:   nowStr(),
-  });
-  ["f-name","f-brand","f-note","f-who"].forEach(id => document.getElementById(id).value="");
-  document.getElementById("f-qty").value = "1";
-  save();
-  renderAll();
-  showTab("oversikt");
+  document.getElementById("proj-tags").innerHTML=projects.map(p=>
+    `<span class="proj-tag">${p} <button data-action="remove-proj" data-proj="${p}">×</button></span>`).join("");
 }
 
 function populateProj() {
-  document.getElementById("f-proj").innerHTML = projects.map(p=>`<option>${p}</option>`).join("");
-}
-
-function exportData() {
-  const blob = new Blob([JSON.stringify({tools, projects}, null, 2)], {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "verktoy_backup_" + new Date().toISOString().slice(0,10) + ".json";
-  a.click();
-}
-
-function importData(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    try {
-      const d = JSON.parse(ev.target.result);
-      if (d.tools && d.projects) {
-        tools = d.tools;
-        projects = d.projects;
-        nextId = Math.max(...tools.map(t=>t.id)) + 1;
-        save();
-        renderAll();
-        showToast("✅ Import vellykket!");
-      } else { alert("Ugyldig fil"); }
-    } catch { alert("Kunne ikke lese filen"); }
-  };
-  r.readAsText(file);
-}
-
-function resetData() {
-  if (!confirm("Nullstille ALT? Dette kan ikke angres.")) return;
-  tools = JSON.parse(JSON.stringify(DEFAULT_TOOLS));
-  projects = [...DEFAULT_PROJECTS];
-  nextId = 30;
-  save();
-  renderAll();
-  showToast("Nullstilt til standarddata");
+  document.getElementById("f-proj").innerHTML=projects.map(p=>`<option>${p}</option>`).join("");
 }
 
 function showTab(t) {
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.querySelectorAll(".tab").forEach(s=>s.classList.remove("active"));
   document.getElementById(t).classList.add("active");
-  const idx = {oversikt:0,finn:1,"legg-til":2,prosjekter:3,innstillinger:4};
-  document.querySelectorAll(".tab")[idx[t]].classList.add("active");
+  document.querySelector(`.tab[data-tab="${t}"]`).classList.add("active");
 }
-
-load();
-renderAll();
 </script>
 </body>
 </html>
