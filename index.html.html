@@ -205,7 +205,18 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
       </div>
       <div class="right-col">
         <div class="no-select-msg" id="no-select-msg-finn">👆 Trykk på et verktøy<br>for å redigere det her</div>
-        <div class="edit-panel" id="edit-panel-finn"></div>
+        <div class="edit-panel" id="edit-panel-finn">
+          <h3><span id="ep-title-finn">Rediger verktøy</span><button class="close-btn" id="ep-close-finn">×</button></h3>
+          <div class="ep-grid">
+            <div><label>Status</label><select id="ep-status-finn"></select></div>
+            <div><label>Antall</label><input type="number" id="ep-qty-finn" min="1" value="1"></div>
+          </div>
+          <div class="ep-row"><label>Prosjekt</label><select id="ep-proj-finn"></select></div>
+          <div class="ep-row"><label>Merknad</label><input type="text" id="ep-note-finn" placeholder="Legg til merknad..."></div>
+          <div class="ep-row"><label>Ditt navn</label><input type="text" id="ep-who-finn" placeholder="Initialer eller navn"></div>
+          <button class="save-btn" id="ep-save-finn">💾 Lagre endring</button>
+          <button class="del-btn-ep" id="ep-delete-finn">🗑️ Slett verktøy</button>
+        </div>
       </div>
     </div>
   </div>
@@ -395,37 +406,49 @@ function toolCard(t){
 
 // ── Right-side edit panel ────────────────────────────────
 function populateEpDropdowns(){
-  const epProj=document.getElementById("ep-proj");
-  if(epProj) epProj.innerHTML=projects.map(p=>`<option>${p}</option>`).join("");
-  const epStat=document.getElementById("ep-status");
-  if(epStat) epStat.innerHTML=Object.entries(SL).map(([v,l])=>`<option value="${v}">${l}</option>`).join("");
+  ["","finn"].forEach(sfx=>{
+    const s=sfx?"-"+sfx:"";
+    const epProj=document.getElementById("ep-proj"+s);
+    if(epProj) epProj.innerHTML=projects.map(p=>`<option>${p}</option>`).join("");
+    const epStat=document.getElementById("ep-status"+s);
+    if(epStat) epStat.innerHTML=Object.entries(SL).map(([v,l])=>`<option value="${v}">${l}</option>`).join("");
+  });
 }
 
 function openEditPanel(key){
   selectedKey=key;
   const t=tools.find(x=>x.key===key);
   if(!t) return;
+  const label=t.name+(t.qty>1?" ("+t.qty+" stk)":"");
 
-  document.getElementById("no-select-msg").style.display="none";
-  const panel=document.getElementById("edit-panel");
-  panel.classList.add("visible");
-  document.getElementById("ep-title").textContent=t.name+(t.qty>1?" ("+t.qty+" stk)":"");
-  document.getElementById("ep-status").value=t.status;
-  document.getElementById("ep-qty").value=t.qty||1;
-  document.getElementById("ep-proj").value=t.proj;
-  document.getElementById("ep-note").value=t.note||"";
-  document.getElementById("ep-who").value=t.who||"";
-  panel.dataset.key=key;
-
-  // re-render list to highlight selected card
+  ["","finn"].forEach(sfx=>{
+    const s=sfx?"-"+sfx:"";
+    const ns=document.getElementById("no-select-msg"+(sfx?"-"+sfx:""));
+    const panel=document.getElementById("edit-panel"+(sfx?"-"+sfx:""));
+    if(ns) ns.style.display="none";
+    if(panel){
+      panel.classList.add("visible");
+      panel.dataset.key=key;
+      document.getElementById("ep-title"+s).textContent=label;
+      document.getElementById("ep-status"+s).value=t.status;
+      document.getElementById("ep-qty"+s).value=t.qty||1;
+      document.getElementById("ep-proj"+s).value=t.proj;
+      document.getElementById("ep-note"+s).value=t.note||"";
+      document.getElementById("ep-who"+s).value=t.who||"";
+    }
+  });
   renderAll();
 }
 
 function closeEditPanel(){
   selectedKey=null;
-  document.getElementById("no-select-msg").style.display="";
-  document.getElementById("edit-panel").classList.remove("visible");
-  document.getElementById("edit-panel").removeAttribute("data-key");
+  ["","finn"].forEach(sfx=>{
+    const s=sfx?"-"+sfx:"";
+    const ns=document.getElementById("no-select-msg"+(sfx?"-"+sfx:""));
+    const panel=document.getElementById("edit-panel"+(sfx?"-"+sfx:""));
+    if(ns) ns.style.display="";
+    if(panel){ panel.classList.remove("visible"); panel.removeAttribute("data-key"); }
+  });
   renderAll();
 }
 
@@ -436,24 +459,26 @@ document.addEventListener("click", function(e){
   if(el.classList.contains("tab")&&el.dataset.tab){ showTab(el.dataset.tab); return; }
   if(el.classList.contains("filter-btn")&&el.dataset.cat){ activeCat=el.dataset.cat; renderSearch(); return; }
 
-  // PC sidebar save
-  if(el.id==="ep-save"){
-    const k=document.getElementById("edit-panel").dataset.key;
+  // PC sidebar save (oversikt + finn)
+  if(el.id==="ep-save"||el.id==="ep-save-finn"){
+    const sfx=el.id==="ep-save-finn"?"-finn":"";
+    const k=document.getElementById("edit-panel"+sfx).dataset.key;
     if(!k) return;
     db.ref("tools/"+k).update({
-      status:document.getElementById("ep-status").value,
-      qty:parseInt(document.getElementById("ep-qty").value)||1,
-      proj:document.getElementById("ep-proj").value,
-      note:document.getElementById("ep-note").value,
-      who:document.getElementById("ep-who").value,
+      status:document.getElementById("ep-status"+sfx).value,
+      qty:parseInt(document.getElementById("ep-qty"+sfx).value)||1,
+      proj:document.getElementById("ep-proj"+sfx).value,
+      note:document.getElementById("ep-note"+sfx).value,
+      who:document.getElementById("ep-who"+sfx).value,
       time:nowStr()
     });
     showToast("✅ Lagret!"); return;
   }
 
-  // PC sidebar delete
-  if(el.id==="ep-delete"){
-    const k=document.getElementById("edit-panel").dataset.key;
+  // PC sidebar delete (oversikt + finn)
+  if(el.id==="ep-delete"||el.id==="ep-delete-finn"){
+    const sfx=el.id==="ep-delete-finn"?"-finn":"";
+    const k=document.getElementById("edit-panel"+sfx).dataset.key;
     if(!k) return;
     if(!confirm("Slette dette verktøyet?")) return;
     db.ref("tools/"+k).remove();
@@ -461,8 +486,8 @@ document.addEventListener("click", function(e){
     showToast("🗑️ Slettet"); return;
   }
 
-  // PC sidebar close
-  if(el.id==="ep-close"){ closeEditPanel(); return; }
+  // PC sidebar close (oversikt + finn)
+  if(el.id==="ep-close"||el.id==="ep-close-finn"){ closeEditPanel(); return; }
 
   // Mobile save
   if(el.dataset.action==="save"){
@@ -579,7 +604,8 @@ function renderSearch(){
     (activeCat==="Alle"||t.cat===activeCat)&&
     (!q||t.name.toLowerCase().includes(q)||(t.brand||"").toLowerCase().includes(q)||
          t.proj.toLowerCase().includes(q)||(t.note||"").toLowerCase().includes(q)));
-  document.getElementById("search-count").textContent=filtered.length+" verktøy";
+  const filteredQty=filtered.reduce((s,t)=>s+(parseInt(t.qty)||1),0);
+  document.getElementById("search-count").textContent=filteredQty+" verktøy ("+filtered.length+" oppføringer)";
   document.getElementById("search-list").innerHTML=filtered.length
     ?'<div class="tool-grid">'+filtered.map(t=>toolCard(t)).join("")+"</div>"
     :'<div class="empty">Ingen verktøy funnet</div>';
