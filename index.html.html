@@ -337,6 +337,8 @@ function toolCard(t) {
         <div><label style="font-size:11px;color:#888;font-weight:700">Status</label><select id="ms-${t.key}">${statOpts}</select></div>
         <div><label style="font-size:11px;color:#888;font-weight:700">Prosjekt</label><select id="mp-${t.key}">${projOpts}</select></div>
       </div>
+      <div style="margin-bottom:6px"><label style="font-size:11px;color:#888;font-weight:700">Antall</label>
+        <input type="number" id="mq-${t.key}" value="${t.qty||1}" min="1" style="max-width:80px"></div>
       <div style="margin-bottom:6px"><label style="font-size:11px;color:#888;font-weight:700">Merknad</label>
         <input type="text" id="mn-${t.key}" value="${t.note||""}" placeholder="Legg til merknad..."></div>
       <div style="margin-bottom:6px"><label style="font-size:11px;color:#888;font-weight:700">Ditt navn</label>
@@ -361,6 +363,7 @@ document.addEventListener("click", function(e) {
     db.ref("tools/"+k).update({
       status: document.getElementById("ms-"+k).value,
       proj:   document.getElementById("mp-"+k).value,
+      qty:    parseInt(document.getElementById("mq-"+k).value)||1,
       note:   document.getElementById("mn-"+k).value,
       who:    document.getElementById("mw-"+k).value,
       time:   nowStr()
@@ -436,9 +439,12 @@ document.getElementById("search-input").addEventListener("input", renderSearch);
 function renderAll() { updateSummary(); renderSearch(); renderProjects(); }
  
 function updateSummary() {
-  document.getElementById("tot").textContent = tools.length;
-  document.getElementById("tok").textContent = tools.filter(t=>t.status==="here").length;
-  document.getElementById("twarn").textContent = tools.filter(t=>t.status!=="here"&&t.status!=="ret").length;
+  const totalQty  = tools.reduce((s,t)=>s+(parseInt(t.qty)||1),0);
+  const hereQty   = tools.filter(t=>t.status==="here").reduce((s,t)=>s+(parseInt(t.qty)||1),0);
+  const warnQty   = tools.filter(t=>t.status!=="here"&&t.status!=="ret").reduce((s,t)=>s+(parseInt(t.qty)||1),0);
+  document.getElementById("tot").textContent = totalQty;
+  document.getElementById("tok").textContent = hereQty;
+  document.getElementById("twarn").textContent = warnQty;
   const order={missing:0,rep:1,away:2,here:3,ret:4};
   const sorted=[...tools].sort((a,b)=>(order[a.status]||9)-(order[b.status]||9));
   document.getElementById("ov-list").innerHTML = sorted.length
