@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#f4f6f9;color:#1a1a1a;font-size:15px}
- 
+
 /* ── Layout ── */
 .app{max-width:1200px;margin:0 auto;padding:14px}
 .header{background:#1F3864;color:#fff;padding:14px 18px;border-radius:12px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -17,28 +17,28 @@ body{font-family:Arial,sans-serif;background:#f4f6f9;color:#1a1a1a;font-size:15p
 .conn-badge.online{background:rgba(112,173,71,0.3);color:#c6efce}
 .conn-badge.offline{background:rgba(200,0,0,0.3);color:#ffc7ce}
 .conn-badge.loading{background:rgba(255,255,255,0.15);color:#fff}
- 
+
 /* ── PC two-column layout ── */
 .main-layout{display:flex;gap:14px;align-items:flex-start}
 .left-col{flex:1;min-width:0}
 .right-col{width:340px;flex-shrink:0;position:sticky;top:14px}
- 
+
 /* Hide sidebar on mobile */
 @media(max-width:799px){
   .right-col{display:none}
   .main-layout{display:block}
 }
- 
+
 /* ── Tabs ── */
 .tabs{display:flex;gap:4px;margin-bottom:12px}
 .tab{flex:1;padding:8px 4px;border:1.5px solid #c8d6e5;border-radius:8px;background:#fff;font-size:13px;cursor:pointer;text-align:center;color:#555;font-family:Arial,sans-serif}
 .tab.active{background:#D6E4F0;border-color:#2F5496;color:#1F3864;font-weight:700}
 .section{display:none}.section.active{display:block}
- 
+
 /* ── Inputs ── */
 input[type=text],input[type=number],select{width:100%;padding:8px 10px;border:1.5px solid #c8d6e5;border-radius:8px;font-size:13px;font-family:Arial,sans-serif;background:#fff;color:#1a1a1a;margin-top:3px}
 input:focus,select:focus{outline:none;border-color:#2F5496}
- 
+
 /* ── Stat boxes ── */
 .stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
 .stat-box{border-radius:10px;padding:12px;text-align:center}
@@ -47,7 +47,7 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
 .stat-box.total{background:#D6E4F0;color:#1F3864}
 .stat-box.ok{background:#E2EFDA;color:#375623}
 .stat-box.warn{background:#FFF2CC;color:#7F6000}
- 
+
 /* ── Tool cards (grid on PC) ── */
 .tool-grid{display:grid;grid-template-columns:1fr;gap:8px}
 @media(min-width:800px){
@@ -72,14 +72,14 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
 .tool-loc b{color:#444}
 .tool-time{font-size:10px;color:#bbb;margin-top:3px}
 .tool-note{font-size:11px;color:#888;margin-top:3px}
- 
+
 /* Mobile inline edit form */
 .move-form{margin-top:10px;padding-top:10px;border-top:1px solid #e8edf3;display:none}
 .move-form.open{display:block}
 @media(min-width:800px){
   .move-form{display:none!important}
 }
- 
+
 /* ── Right sidebar edit panel ── */
 .edit-panel{background:#fff;border:1.5px solid #c8d6e5;border-radius:12px;padding:16px;display:none}
 .edit-panel.visible{display:block}
@@ -94,12 +94,12 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
 .del-btn-ep{width:100%;padding:8px;background:#fff;color:#C00000;border:1.5px solid #C00000;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;margin-top:6px}
 .del-btn-ep:hover{background:#FCE4D6}
 .no-select-msg{background:#fff;border:1.5px dashed #c8d6e5;border-radius:12px;padding:32px 16px;text-align:center;color:#999;font-size:13px;line-height:1.6}
- 
+
 /* Mobile del/save buttons inside card */
 .move-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
 .move-btn{width:100%;padding:8px;background:#1F3864;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif}
 .del-btn{width:100%;padding:7px;background:#fff;color:#C00000;border:1.5px solid #C00000;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;margin-top:5px}
- 
+
 /* ── Search & filters ── */
 .search-box{margin-bottom:8px}
 .filter-row{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
@@ -107,7 +107,7 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
 .filter-btn.on{background:#E2EFDA;border-color:#375623;color:#375623;font-weight:700}
 .count{font-size:12px;color:#888;margin-bottom:8px}
 .empty{text-align:center;padding:28px;color:#999;font-size:14px}
- 
+
 /* ── Forms ── */
 .form-card{background:#fff;border:1.5px solid #c8d6e5;border-radius:10px;padding:16px;max-width:600px}
 .form-row{margin-bottom:11px}
@@ -116,7 +116,7 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
 .form-2 label{font-size:12px;color:#555;font-weight:700;display:block}
 .btn-add{width:100%;padding:11px;background:#1F3864;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;margin-top:4px}
 .btn-add:hover{background:#2F5496}
- 
+
 /* ── Projects ── */
 .proj-card{background:#fff;border:1.5px solid #c8d6e5;border-radius:10px;padding:14px;margin-bottom:10px}
 .proj-title{font-weight:700;font-size:15px;color:#1F3864;margin-bottom:8px}
@@ -125,7 +125,7 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
 .pstat.g{background:#E2EFDA;color:#375623}
 .pstat.a{background:#FFF2CC;color:#7F6000}
 .pstat.r{background:#FCE4D6;color:#C00000}
- 
+
 /* ── Settings ── */
 .settings-card{background:#fff;border:1.5px solid #c8d6e5;border-radius:10px;padding:14px;margin-bottom:10px;max-width:600px}
 .settings-card h3{font-size:14px;color:#1F3864;margin-bottom:10px}
@@ -135,7 +135,7 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
 .proj-input-row input{flex:1;margin-top:0}
 .proj-tag{display:inline-flex;align-items:center;gap:5px;background:#D6E4F0;color:#1F3864;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;margin:3px}
 .proj-tag button{background:none;border:none;color:#C00000;cursor:pointer;font-size:14px;font-weight:700;padding:0;line-height:1}
- 
+
 /* ── Toast ── */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1F3864;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
@@ -145,7 +145,7 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
 </head>
 <body>
 <div class="app">
- 
+
   <!-- Header -->
   <div class="header">
     <div class="header-left">
@@ -154,7 +154,7 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
     </div>
     <div class="conn-badge loading" id="conn-badge">⏳ Kobler til...</div>
   </div>
- 
+
   <!-- Tabs -->
   <div class="tabs">
     <div class="tab active" data-tab="oversikt">Oversikt</div>
@@ -163,7 +163,7 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
     <div class="tab" data-tab="prosjekter">Prosjekter</div>
     <div class="tab" data-tab="innstillinger">⚙️</div>
   </div>
- 
+
   <!-- OVERSIKT -->
   <div id="oversikt" class="section active">
     <div class="stat-grid">
@@ -193,7 +193,7 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
       </div>
     </div>
   </div>
- 
+
   <!-- FINN -->
   <div id="finn" class="section">
     <div class="main-layout">
@@ -209,7 +209,7 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
       </div>
     </div>
   </div>
- 
+
   <!-- LEGG TIL -->
   <div id="legg-til" class="section">
     <div class="form-card">
@@ -236,12 +236,12 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
       <button class="btn-add" id="btn-add-tool">✅ Registrer verktøy</button>
     </div>
   </div>
- 
+
   <!-- PROSJEKTER -->
   <div id="prosjekter" class="section">
     <div id="proj-list"></div>
   </div>
- 
+
   <!-- INNSTILLINGER -->
   <div id="innstillinger" class="section">
     <div class="settings-card">
@@ -258,10 +258,10 @@ input:focus,select:focus{outline:none;border-color:#2F5496}
       <button class="btn-danger" id="btn-reset">🗑️ Slett alle verktøy</button>
     </div>
   </div>
- 
+
 </div><!-- /app -->
 <div class="toast" id="toast"></div>
- 
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
@@ -275,7 +275,7 @@ firebase.initializeApp({
   appId:"1:764667132617:web:fbfdd964148810cab76b18"
 });
 const db = firebase.database();
- 
+
 const DEFAULT_PROJECTS = ["816 - Nordbergveien 83","Rolf Olsensvei 30-32","Lager - Kontor T8"];
 const DEFAULT_TOOLS = [
   {name:"Kappsag",brand:"Dewalt",qty:1,cat:"Snekker",proj:"816 - Nordbergveien 83",status:"here",note:"",who:"",time:""},
@@ -304,13 +304,13 @@ const DEFAULT_TOOLS = [
   {name:"Kompressor",brand:"Paslode",qty:1,cat:"Snekker",proj:"Lager - Kontor T8",status:"here",note:"",who:"",time:""},
   {name:"Skinnesag",brand:"Makita",qty:1,cat:"Snekker",proj:"Lager - Kontor T8",status:"here",note:"",who:"",time:""},
 ];
- 
+
 const SL = {here:"På plass",away:"Utlånt",rep:"Til reparasjon",missing:"Savnes",ret:"Returnert"};
 const SC = {here:"green",away:"amber",rep:"red",missing:"red",ret:""};
 const SB = {here:"here",away:"away",rep:"rep",missing:"missing",ret:"ret"};
- 
+
 let tools=[], projects=[...DEFAULT_PROJECTS], activeCat="Alle", selectedKey=null;
- 
+
 function nowStr(){
   const d=new Date();
   return d.getDate().toString().padStart(2,"0")+"."+(d.getMonth()+1).toString().padStart(2,"0")
@@ -327,7 +327,7 @@ function setBadge(s){
   else if(s==="offline"){b.className="conn-badge offline";b.textContent="🔴 Frakoblet";}
   else{b.className="conn-badge loading";b.textContent="⏳ Kobler til...";}
 }
- 
+
 // ── Firebase ─────────────────────────────────────────────
 db.ref("tools").on("value", snap => {
   tools=[];
@@ -335,7 +335,7 @@ db.ref("tools").on("value", snap => {
   renderAll();
   setBadge("online");
 }, ()=>setBadge("offline"));
- 
+
 db.ref("projects").on("value", snap=>{
   if(snap.exists()){
     const v=snap.val();
@@ -347,7 +347,7 @@ db.ref("projects").on("value", snap=>{
   // refresh edit panel dropdowns
   populateEpDropdowns();
 });
- 
+
 db.ref("tools").once("value").then(snap=>{
   if(!snap.exists()||snap.numChildren()===0){
     const b={};
@@ -361,7 +361,7 @@ db.ref("projects").once("value").then(snap=>{
     const o={};DEFAULT_PROJECTS.forEach((p,i)=>o["p"+i]=p);db.ref("projects").set(o);
   }
 });
- 
+
 // ── Tool card HTML (mobile: inline edit; PC: no inline form) ──
 function toolCard(t){
   const note=t.note?`<div class="tool-note">📝 ${t.note}</div>`:"";
@@ -392,7 +392,7 @@ function toolCard(t){
     </div>
   </div>`;
 }
- 
+
 // ── Right-side edit panel ────────────────────────────────
 function populateEpDropdowns(){
   const epProj=document.getElementById("ep-proj");
@@ -400,12 +400,12 @@ function populateEpDropdowns(){
   const epStat=document.getElementById("ep-status");
   if(epStat) epStat.innerHTML=Object.entries(SL).map(([v,l])=>`<option value="${v}">${l}</option>`).join("");
 }
- 
+
 function openEditPanel(key){
   selectedKey=key;
   const t=tools.find(x=>x.key===key);
   if(!t) return;
- 
+
   document.getElementById("no-select-msg").style.display="none";
   const panel=document.getElementById("edit-panel");
   panel.classList.add("visible");
@@ -416,11 +416,11 @@ function openEditPanel(key){
   document.getElementById("ep-note").value=t.note||"";
   document.getElementById("ep-who").value=t.who||"";
   panel.dataset.key=key;
- 
+
   // re-render list to highlight selected card
   renderAll();
 }
- 
+
 function closeEditPanel(){
   selectedKey=null;
   document.getElementById("no-select-msg").style.display="";
@@ -428,14 +428,14 @@ function closeEditPanel(){
   document.getElementById("edit-panel").removeAttribute("data-key");
   renderAll();
 }
- 
+
 // ── Events ──────────────────────────────────────────────
 document.addEventListener("click", function(e){
   const el=e.target;
- 
+
   if(el.classList.contains("tab")&&el.dataset.tab){ showTab(el.dataset.tab); return; }
   if(el.classList.contains("filter-btn")&&el.dataset.cat){ activeCat=el.dataset.cat; renderSearch(); return; }
- 
+
   // PC sidebar save
   if(el.id==="ep-save"){
     const k=document.getElementById("edit-panel").dataset.key;
@@ -450,7 +450,7 @@ document.addEventListener("click", function(e){
     });
     showToast("✅ Lagret!"); return;
   }
- 
+
   // PC sidebar delete
   if(el.id==="ep-delete"){
     const k=document.getElementById("edit-panel").dataset.key;
@@ -460,10 +460,10 @@ document.addEventListener("click", function(e){
     closeEditPanel();
     showToast("🗑️ Slettet"); return;
   }
- 
+
   // PC sidebar close
   if(el.id==="ep-close"){ closeEditPanel(); return; }
- 
+
   // Mobile save
   if(el.dataset.action==="save"){
     e.stopPropagation();
@@ -478,7 +478,7 @@ document.addEventListener("click", function(e){
     });
     showToast("✅ Lagret!"); return;
   }
- 
+
   // Mobile delete
   if(el.dataset.action==="delete"){
     e.stopPropagation();
@@ -486,7 +486,7 @@ document.addEventListener("click", function(e){
     db.ref("tools/"+el.dataset.key).remove();
     showToast("🗑️ Slettet"); return;
   }
- 
+
   if(el.dataset.action==="remove-proj"){
     const p=el.dataset.proj;
     if(tools.some(t=>t.proj===p)){alert("Kan ikke slette prosjekt med verktøy.");return;}
@@ -498,7 +498,7 @@ document.addEventListener("click", function(e){
       showToast("Prosjekt fjernet");
     }); return;
   }
- 
+
   if(el.id==="btn-add-proj"){
     const v=document.getElementById("new-proj-input").value.trim();
     if(!v||projects.includes(v))return;
@@ -510,7 +510,7 @@ document.addEventListener("click", function(e){
       showToast("✅ Prosjekt lagt til");
     }); return;
   }
- 
+
   if(el.id==="btn-add-tool"){
     const name=document.getElementById("f-name").value.trim();
     if(!name){alert("Skriv inn navn på verktøyet");return;}
@@ -528,12 +528,12 @@ document.addEventListener("click", function(e){
     document.getElementById("f-qty").value="1";
     showToast("✅ Verktøy registrert!"); showTab("oversikt"); return;
   }
- 
+
   if(el.id==="btn-reset"){
     if(!confirm("Slette ALLE verktøy? Kan ikke angres."))return;
     db.ref("tools").remove().then(()=>{closeEditPanel();showToast("🗑️ Alle verktøy slettet");}); return;
   }
- 
+
   // Toggle: PC opens sidebar, mobile opens inline
   const card=el.closest("[data-action='toggle']");
   if(card&&!el.closest("button")&&!el.closest("input")&&!el.closest("select")){
@@ -550,12 +550,12 @@ document.addEventListener("click", function(e){
     }
   }
 });
- 
+
 document.getElementById("search-input").addEventListener("input", renderSearch);
- 
+
 // ── Render ───────────────────────────────────────────────
 function renderAll(){ updateSummary(); renderSearch(); renderProjects(); }
- 
+
 function updateSummary(){
   const tot=tools.reduce((s,t)=>s+(parseInt(t.qty)||1),0);
   const ok=tools.filter(t=>t.status==="here").reduce((s,t)=>s+(parseInt(t.qty)||1),0);
@@ -569,7 +569,7 @@ function updateSummary(){
     ?'<div class="tool-grid">'+sorted.map(t=>toolCard(t)).join("")+"</div>"
     :'<div class="empty">Ingen verktøy registrert ennå</div>';
 }
- 
+
 function renderSearch(){
   const q=(document.getElementById("search-input").value||"").toLowerCase();
   const cats=["Alle",...new Set(tools.map(t=>t.cat))];
@@ -584,7 +584,7 @@ function renderSearch(){
     ?'<div class="tool-grid">'+filtered.map(t=>toolCard(t)).join("")+"</div>"
     :'<div class="empty">Ingen verktøy funnet</div>';
 }
- 
+
 function renderProjects(){
   document.getElementById("proj-list").innerHTML=projects.map(p=>{
     const pt=tools.filter(t=>t.proj===p);
@@ -602,7 +602,7 @@ function renderProjects(){
     </div>`;
   }).join("");
 }
- 
+
 function renderSettings(){
   document.getElementById("proj-tags").innerHTML=projects.map(p=>
     `<span class="proj-tag">${p} <button data-action="remove-proj" data-proj="${p}">×</button></span>`).join("");
@@ -616,9 +616,8 @@ function showTab(t){
   document.getElementById(t).classList.add("active");
   document.querySelector(`.tab[data-tab="${t}"]`).classList.add("active");
 }
- 
+
 populateEpDropdowns();
 </script>
 </body>
 </html>
- 
